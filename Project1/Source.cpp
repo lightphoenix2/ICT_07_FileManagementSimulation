@@ -9,13 +9,13 @@ const int MAX_ENTRIES = 128;
 
 // Prototyping
 void fillVector(vector<SingleEntry>&); // FillVector - fill in SingleEntry information
-void printVector(vector<SingleEntry>&); // printVector - prints the information of all memory
+//void printVector(vector<SingleEntry>&); // printVector - prints the information of all memory
 
 
 int main() {
 	vector<SingleEntry> memories;
 	fillVector(memories);
-	printVector(memories);
+	//printVector(memories);
 
 	system("pause");
 	return 0;
@@ -37,17 +37,19 @@ void fillVector(vector<SingleEntry>& myMemory){
 		SingleEntry newEntry(i - 1, blockCounter, value);
 		myMemory.push_back(newEntry);
 	}
+	cout << "Completed filling of Memory!"<< endl;
 }
 
-void printVector(vector<SingleEntry>& myMemory){
-	int size = myMemory.size();
-	cout << endl << "Sample example of format" << endl;
-	for (int i = 0; i < size; i++) {
-		cout << "Index: " << myMemory[i].getPhysical_index;
-		cout << "\t Block: " << myMemory[i].getBlock_index;
-		cout << "\t File data:" << myMemory[i].getData_value << endl;
-	}
-}
+//void printVector(vector<SingleEntry>& myMemory){
+//	int size = myMemory.size();
+//	cout << endl << "Sample example of format" << endl;
+//	for (int i = 0; i < size; i++) {
+//		cout << "Index: " << myMemory[i].getPhysical_index;
+//		cout << "\t Block: " << myMemory[i].getBlock_index;
+//		cout << "\t File data:" << myMemory[i].getData_value << endl;
+//	}
+//	cout << "Completed initialization of Memory!"<< endl;
+//}
 
 
 
