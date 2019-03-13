@@ -22,13 +22,20 @@ int main() {
 }
 
 void fillVector(vector<SingleEntry>& myMemory){
+	string value = " ";
+	int blockCounter = 0;
+
 	cout << "Enter size of number of block size: ";	 //get the size per data block
 	int blockSize;
 	cin >> blockSize;
 
-	string value = " ";
-	int blockCounter = 0;
-	for (int i = 1; i <= MAX_ENTRIES; i++) {	// inserts the value such that [0]... [128]
+	cout << endl << "- - - - - Preparing to initalize simulated memory space. - - - - - " << endl;
+	int unuseableIndexes = MAX_ENTRIES % blockSize;
+	int usableIndex = MAX_ENTRIES - unuseableIndexes;
+	cout << "Useable index(es): " << usableIndex << endl;
+
+	// Init the index that can be utlized.
+	for (int i = 1; i <= usableIndex; i++) {	// inserts the value such that [0]... [128]
 		if (i%blockSize) {
 			SingleEntry newEntry(i - 1, blockCounter, value);
 			myMemory.push_back(newEntry);
@@ -39,18 +46,22 @@ void fillVector(vector<SingleEntry>& myMemory){
 			blockCounter++;
 		}
 	}
-	cout << "Completed filling of Memory!";
+	if (unuseableIndexes > 0) {
+		cout << "Number of index(es) that cannot be utlized due to block size: " << unuseableIndexes << endl;
+		cout << "Index, " << usableIndex << " to " << MAX_ENTRIES << " cannot be utlized due to block size." << endl;
+	}
+	cout << "- - - - - Completed filling of Memory! - - - - - " << endl;
 }
 
 void printVector(const vector<SingleEntry>& myMemory){
 	unsigned int size = myMemory.size();
-	cout << endl << "Sample example of format" << endl;
+	cout << endl << "Simulated memory space: " << endl;
 	for (unsigned int i = 0; i < size; i++) {
 		cout << "Index: " << myMemory[i].getPhysical_index();
 		cout << "\t Block: " << myMemory[i].getBlock_index();
 		cout << "\t File data:" << myMemory[i].getData_value() << endl;
 	}
-	cout << "Completed initialization of Memory!";
+	cout << "- - - - - Completed initialization of Memory! - - - - - " << endl;
 }
 
 
