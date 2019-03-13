@@ -21,3 +21,7 @@ int SingleEntry::getBlock_index() const {
 string SingleEntry::getData_value() const {
 	return data_value;
 }
+
+void SingleEntry::setData_value(string d_value) {
+	data_value = d_value;
+}

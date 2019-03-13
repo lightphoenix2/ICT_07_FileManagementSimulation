@@ -10,12 +10,14 @@ const int MAX_ENTRIES = 128;
 // Prototyping
 void fillVector(vector<SingleEntry>&); // FillVector - fill in SingleEntry information
 void printVector(const vector<SingleEntry>&); // printVector - prints the information of all memory
-
+int findEmptyEntry(const vector<SingleEntry>&); // search for an empty block for insertion/deletion
+void addEntry(const vector<SingleEntry>&, string); //add a data value into a selected entry
 
 int main() {
 	vector<SingleEntry> memories;
 	fillVector(memories);
 	printVector(memories);
+	int emptyEntry = findEmptyEntry(memories);
 
 	system("pause");
 	return 0;
@@ -54,38 +56,32 @@ void fillVector(vector<SingleEntry>& myMemory){
 }
 
 void printVector(const vector<SingleEntry>& myMemory){
-	unsigned int size = myMemory.size();
+	unsigned int size = myMemory.size(); // gets the size of the vector
 	cout << endl << "Simulated memory space: " << endl;
 	for (unsigned int i = 0; i < size; i++) {
 		cout << "Index: " << myMemory[i].getPhysical_index();
 		cout << "\t Block: " << myMemory[i].getBlock_index();
 		cout << "\t File data:" << myMemory[i].getData_value() << endl;
 	}
+	cout << "[IMPORTANT] Block 0 is reserved for volume control." << endl;
 	cout << "- - - - - Completed initialization of Memory! - - - - - " << endl;
 }
 
+int findEmptyEntry(const vector<SingleEntry>& myMemory) {
+	int blockNumber;
+	unsigned int size = myMemory.size(); // gets the size of the vector
+	for (unsigned int i = 0; i < size; i++) {
+		if (myMemory[i].getBlock_index() != 0) {
+			if (myMemory[i].getData_value() == " ") {
+				blockNumber = i;
+				break;
+			}
+		}
+	}
+	cout << endl << "Empty Block found at index number: " << blockNumber << endl;
+	return blockNumber;
+}
 
+void addEntry(const vector<SingleEntry>&, string) {
 
-// Archival
-//-----------------
-//int memory[MAX_ENTRIES], block[MAX_ENTRIES], data[MAX_ENTRIES];	// creates an array of 128 elements to simulated 128 entries. [Index/rows]
-//int choice, blockSize, numOfBlocks;
-//cout << "Enter size of number of block size: ";	 //get the size per data block
-//cin >> blockSize;
-//
-//int blockCounter = 0;
-//for (int i = 1; i <= MAX_ENTRIES; i++) {	// inserts the value such that [0]... [128]
-//	memory[i - 1] = i - 1;
-//	if (i%blockSize) {
-//		block[i - 1] = blockCounter;
-//	}
-//	else {
-//		block[i - 1] = blockCounter;
-//		blockCounter++;
-//	}
-//}
-//
-//cout << endl << "Sample example of format" << endl;
-//for (int i = 0; i < MAX_ENTRIES; i++) {
-//	cout << "Index: " << memory[i] << "\t Block: " << block[i] << "\t File data:" << endl;
-//}
+}

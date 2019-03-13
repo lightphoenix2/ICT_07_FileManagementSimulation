@@ -11,4 +11,5 @@ public:
 	int getPhysical_index() const;
 	int getBlock_index() const;
 	string getData_value() const;
+	void setData_value(string);
 };
