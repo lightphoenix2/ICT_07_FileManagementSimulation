@@ -8,14 +8,19 @@ using namespace std;
 const int MAX_ENTRIES = 128;
 
 // Prototyping
-void fillVector(vector<SingleEntry>&); // FillVector - fill in SingleEntry information
+void fillVector(vector<SingleEntry>&, int sizeOfBlock); // FillVector - fill in SingleEntry information
 void printVector(const vector<SingleEntry>&); // printVector - prints the information of all memory
 int findEmptyEntry(const vector<SingleEntry>&); // search for an empty block for insertion/deletion
 void addEntry(const vector<SingleEntry>&, string); //add a data value into a selected entry
 
 int main() {
 	vector<SingleEntry> memories;
-	fillVector(memories);
+
+	cout << "Enter size of number of block size: ";	 //get the size per data block
+	int blockSize;
+	cin >> blockSize;
+
+	fillVector(memories, blockSize);
 	printVector(memories);
 	int emptyEntry = findEmptyEntry(memories);
 
@@ -23,22 +28,20 @@ int main() {
 	return 0;
 }
 
-void fillVector(vector<SingleEntry>& myMemory){
+void fillVector(vector<SingleEntry>& myMemory, int sizeOfBlock){
 	string value = " ";
 	int blockCounter = 0;
 
-	cout << "Enter size of number of block size: ";	 //get the size per data block
-	int blockSize;
-	cin >> blockSize;
+	
 
 	cout << endl << "- - - - - Preparing to initalize simulated memory space. - - - - - " << endl;
-	int unuseableIndexes = MAX_ENTRIES % blockSize;
+	int unuseableIndexes = MAX_ENTRIES % sizeOfBlock;
 	int usableIndex = MAX_ENTRIES - unuseableIndexes;
 	cout << "Useable index(es): " << usableIndex << endl;
 
 	// Init the index that can be utlized.
 	for (int i = 1; i <= usableIndex; i++) {	// inserts the value such that [0]... [128]
-		if (i%blockSize) {
+		if (i%sizeOfBlock) {
 			SingleEntry newEntry(i - 1, blockCounter, value);
 			myMemory.push_back(newEntry);
 		}
@@ -67,7 +70,7 @@ void printVector(const vector<SingleEntry>& myMemory){
 	cout << "- - - - - Completed initialization of Memory! - - - - - " << endl;
 }
 
-int findEmptyEntry(const vector<SingleEntry>& myMemory) {
+int findEmptyEntry(const vector<SingleEntry>& myMemory) { // searches for an empty entry inside the simulated memory. Returns vector index of empty block.
 	int blockNumber;
 	unsigned int size = myMemory.size(); // gets the size of the vector
 	for (unsigned int i = 0; i < size; i++) {
