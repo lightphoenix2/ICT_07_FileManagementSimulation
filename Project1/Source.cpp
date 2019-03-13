@@ -33,7 +33,7 @@ const int MAX_ENTRIES = 128;
 void fillVector(vector<SingleEntry>&, int sizeOfBlock); // FillVector - fill in SingleEntry information
 void printVector(const vector<SingleEntry>&); // printVector - prints the information of all memory
 int findEmptyEntry(const vector<SingleEntry>&, int sizeOfBlock, int requiredBlocks); // findEmptyEntry - search for an empty block for insertion/deletion. Returns the index of empty block
-void addEntry(const vector<SingleEntry>&, string); // addEntry - add a data value into a selected entry
+void addEntry(const vector<SingleEntry>&, int, int*); // addEntry - add a data value into a selected entry
 void printCSVVector(const vector<vector<string>>&); // print CSVVector - print out the read csv commands
 void fillCSV_vector(vector<vector<string>>&); // fillCSV_vector - fills in the information found in the csv file
 bool checkVolumeControl(const vector<SingleEntry>&); // checkVolumeControl - checks if there is enough space for a new file to be added into the system
@@ -205,3 +205,10 @@ void checkMemorySpace(const vector<SingleEntry>& myMemory, const vector<vector<s
 		}
 	}
 }
+
+void addEntry(const vector<SingleEntry>&myMemory, int index, int* values) {
+	int size = myMemory.size();
+	for (unsigned int i = index; i < size; i++) {
+		if (myMemory[i].getBlock_index() == index) {
+			myMemory[i].setData_value() = values; // add values here
+		}
