@@ -22,8 +22,12 @@ For			: ICT1007 File Management project.
 Changelog :
 13/3 3:06pm - method findEmptyEntry, line 187, needs to have the addEntry algor/method placed here to insert said file command into the simulated memory
 21/3 1.52pm - Add continous file allocation working.
+25/3 4.17pm - Add indexing file allocation working.
 
-
+Left with :
+(1) Add Linked List File allocation
+(2) Read
+(3) Delete
 */
 
 // Constant
@@ -271,10 +275,11 @@ void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 
 	string arrIndex2String; // prep the queue to string 
 	while (!arrayIndexes.empty()) {		// Not able to dequeue queue elements to a string array
-		arrIndex2String = arrayIndexes.front();
+		arrIndex2String = arrIndex2String + "," + to_string(arrayIndexes.front());
+		cout << arrIndex2String << endl;
 		arrayIndexes.pop();
 	}
-	string vcbValue = csv_Vector[comdNum][1] + "," + arrIndex2String; // [File][Start index][end index]
+	string vcbValue = csv_Vector[comdNum][1] + arrIndex2String; // [File][Start index][end index]
 	myMemory[vcbIndex].setData_value(vcbValue);
 }
 
