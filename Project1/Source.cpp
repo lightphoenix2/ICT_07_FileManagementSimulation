@@ -24,12 +24,13 @@ Changelog :
 21/3 1.52pm - Add continous file allocation working.
 25/3 4.17pm - Add indexing file allocation working.
 	 6.00pm - Completed with READING and DELETING for continous and indexed.
+	 7.42pm - COMPLETED
 
 Left with :
-(1) Delete (Linked List)
+(1) Additioanl File management algorithm
 
 Note(s) :
-(1)method deleteMemory (Linked List/choice 3) is INCOMPLETE and NOT WORKING.
+
 */
 
 // Constant
@@ -500,7 +501,7 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 								result.push_back(line);
 							}
 							// end of delimitter
-							if ((((stoi(result[2]) - (stoi(result[1]))) + (stoi(result[0])))) == stoi(csv_Vector[i][1])) {
+							if (stoi(result[0]) == stoi(csv_Vector[i][1])) {
 								cout << "HERE" << endl;
 								cout << "Deleting file " << csv_Vector[i][1] << " : ";
 								int temp = stoi(result[1]);
