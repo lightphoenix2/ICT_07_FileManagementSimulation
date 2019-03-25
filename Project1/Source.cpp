@@ -26,12 +26,10 @@ Changelog :
 	 6.00pm - Completed with READING and DELETING for continous and indexed.
 
 Left with :
-(1) Add (Linked List)
-(2) Read (Linked List)
-(3) Delete (Linked List)
+(1) Delete (Linked List)
 
 Note(s) :
-(1)method addEntryLList is INCOMPLETE and NOT WORKING.
+(1)method deleteMemory (Linked List/choice 3) is INCOMPLETE and NOT WORKING.
 */
 
 // Constant
@@ -269,7 +267,7 @@ void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<str
 				}
 				// [3] - - - For Linked List allocation
 				if (choice == 3) {
-					//addEntryLList(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
+					addEntryLList(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
 				}
 			}
 		}
@@ -300,34 +298,35 @@ void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 		//cout << arrIndex2String << endl;
 		arrayIndexes.pop();
 	}
-	string vcbValue = csv_Vector[comdNum][1] + arrIndex2String; // [File][Start index][end index]
+	string vcbValue = csv_Vector[comdNum][1] + arrIndex2String; // [File][Start index]....[end index]
 	myMemory[vcbIndex].setData_value(vcbValue);
 }
 
-// addEntryLList is NOT working
 void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum, int emptyEntry, int vcbIndex) { // For continous allocation [Does not utilize blocks]
 	int vectorSizeMin2 = csv_Vector[comdNum].size() - 2;
-	if (emptyEntry < 127) {
-		for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
-			if (myMemory[emptyEntry].getData_value() != " ") {
-				//myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o] +  "," +  to_string(emptyEntry+1)); [File][Next index]
-				addEntryLList(myMemory, csv_Vector, comdNum, emptyEntry + 1, vcbIndex);
+	int startingIndex = emptyEntry;
+	int tempIndex = emptyEntry;
+	int endingIndex = emptyEntry;
+	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
+		if (myMemory[tempIndex].getData_value() == " ") {
+			endingIndex = tempIndex + 1;
+			if (myMemory[endingIndex].getData_value() == " ") {
+				string values = csv_Vector[comdNum][o] + ","+ to_string(endingIndex);
+				myMemory[tempIndex].setData_value(values);
+				tempIndex = endingIndex;
 			}
-			myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
-			// for VCB
-			string vcbValue = csv_Vector[comdNum][1] + "," + to_string(emptyEntry) + "," + to_string(emptyEntry); // [File][Start index][end index]
-			myMemory[vcbIndex].setData_value(vcbValue);
 		}
-	}
-	else {
-		cout << "[ERROR] - File Allocation: Linked List has failed." << endl;
-	}
+		emptyEntry += 1;
+	}	
+	string vcbValue = csv_Vector[comdNum][1] + "," + to_string(startingIndex) + "," + to_string(endingIndex); // [File][Next Index][Ending index]
+	myMemory[vcbIndex].setData_value(vcbValue);
 }
 
 void readMemory(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int sizeOfBlock, int choice) {
 	cout << endl << "- - - - - Reading - - - - - " << endl;
 	unsigned int csv_size = csv_Vector.size(); // size of read csv file
 	unsigned int size = myMemory.size(); // gets the size of the vector
+
 	for (int i = 0; i < csv_size; i++) {
 		if (csv_Vector[i][0] == "read") {
 			if (choice == 1) { // [1] Continous
@@ -385,11 +384,48 @@ void readMemory(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv
 				}
 			}
 			if (choice == 3) { // [3] linked list
-
+				for (unsigned int s = 0; s < size; s++) {
+					if (myMemory[s].getBlock_index() == 0) {
+						if (myMemory[s].getData_value() != " ") {
+							// strip the line of the comma
+							vector<string> result;
+							string str = myMemory[s].getData_value();
+							stringstream data(str);
+							string line;
+							while (getline(data, line, ',')) {
+								result.push_back(line);
+							}
+							// end of delimitter
+							if ((((stoi(result[2]) - (stoi(result[1]))) + (stoi(result[0])))) == stoi(csv_Vector[i][1])) { // 14 - 8 + 100 = 106
+								cout << "Reading file " << csv_Vector[i][1] << " : ";
+								cout << result[0];
+								int temp = stoi(result[1]);
+								for (int i = stoi(result[1]); i < stoi(result[2]); i++) {
+									// strip the line of the comma // Reason for another delimitter here is to read the [File entry][next index]
+									vector<string> entryResult;
+									if (myMemory[temp].getData_value() == " ") {
+										break;
+									}
+									string entryStr = myMemory[temp].getData_value();
+									stringstream data(entryStr);
+									string entryLine;
+									while (getline(data, entryLine, ',')) {
+										entryResult.push_back(entryLine);
+									}
+									// end of delimitter
+									cout << entryResult[0];
+									temp = stoi(entryResult[1]);
+								}
+								cout << endl;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
 }
+
 
 void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vector, int sizeOfBlock, int choice) {
 	cout << endl << "- - - - - DELETING - - - - - DELETING - - - - - DELETING - - - - - " << endl;
@@ -452,7 +488,43 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 				}
 			}
 			if (choice == 3) { // [3] linked list
-				// add your codes here
+				for (unsigned int s = 0; s < size; s++) {
+					if (myMemory[s].getBlock_index() == 0) {
+						if (myMemory[s].getData_value() != " ") {
+							// strip the line of the comma
+							vector<string> result;
+							string str = myMemory[s].getData_value();
+							stringstream data(str);
+							string line;
+							while (getline(data, line, ',')) {
+								result.push_back(line);
+							}
+							// end of delimitter
+							if ((((stoi(result[2]) - (stoi(result[1]))) + (stoi(result[0])))) == stoi(csv_Vector[i][1])) {
+								cout << "HERE" << endl;
+								cout << "Deleting file " << csv_Vector[i][1] << " : ";
+								int temp = stoi(result[1]);
+								int tempHolder;
+								myMemory[s].setData_value(" "); //wipe the VCB entry to " " value
+								for (int i = stoi(result[1]); i < stoi(result[2]); i++) {
+									// strip the line of the comma // Reason for another delimitter here is to read the [File entry][next index]
+									vector<string> entryResult;
+									string entryStr = myMemory[temp].getData_value();
+									stringstream data(entryStr);
+									string entryLine;
+									while (getline(data, entryLine, ',')) {
+										entryResult.push_back(entryLine);
+									}
+									// end of delimitter
+									cout << entryResult[0];
+									myMemory[temp].setData_value(" ");
+									temp = stoi(entryResult[1]);
+								}
+								cout << endl;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
