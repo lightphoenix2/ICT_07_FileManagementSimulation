@@ -27,7 +27,7 @@ Changelog :
 	 7.42pm - COMPLETED
 
 Left with :
-(1) Additioanl File management algorithm
+(1) Additional File management algorithm
 
 Note(s) :
 
