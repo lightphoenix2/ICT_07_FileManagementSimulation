@@ -21,7 +21,7 @@ For			: ICT1007 File Management project.
 
 Changelog :
 13/3 3:06pm - method findEmptyEntry, line 187, needs to have the addEntry algor/method placed here to insert said file command into the simulated memory
-
+21/3 1.52pm - Add continous file allocation working.
 
 
 */
@@ -36,11 +36,11 @@ int findEmptyEntry(const vector<SingleEntry>&, int sizeOfBlock, int requiredBloc
 void printCSVVector(const vector<vector<string>>&); // print CSVVector - print out the read csv commands
 void fillCSV_vector(vector<vector<string>>&); // fillCSV_vector - fills in the information found in the csv file
 bool checkVolumeControl(const vector<SingleEntry>&); // checkVolumeControl - checks if there is enough space for a new file to be added into the system
-void checkMemorySpace(vector<SingleEntry>&, const vector<vector<string>>&, int blockSize); // checkMemorySpace - checks if there is sufficent space in the memory, if true, insert file from csv command
-// Adding of entries into the simulated memory
-void addEntryContinous(const vector<SingleEntry>&, int, int*); // For continous allocation [Does not utilize blocks]
-void addEntryLList(const vector<SingleEntry>&, int, int*); // For linked list allocation [An entry will contain the file an point to another entry]
-void addEntryIndex(const vector<SingleEntry>&, int, int*); // For index allocation [The index  points to all the blocks allocated to the file]
+void checkMemorySpaceNadd(vector<SingleEntry>&, const vector<vector<string>>&, int blockSize); // checkMemorySpace - checks if there is sufficent space in the memory, if true, insert file from csv command
+// - - - - - - - Adding of entries into the simulated memory
+void addEntryContinous(vector<SingleEntry>&, const vector<vector<string>>&, int, int);	// For continous allocation [Does not utilize blocks]
+void addEntryLList(vector<SingleEntry>&, const vector<vector<string>>&, int, int, int);		// For linked list allocation [An entry will contain the file an point to another entry]
+void addEntryIndex(vector<SingleEntry>&, const vector<vector<string>>&, int, int, int);		// For index allocation [The index  points to all the blocks allocated to the file]
 
 
 int main() {
@@ -59,7 +59,7 @@ int main() {
 
 	bool haveSpace = checkVolumeControl(memories);		// checks against volume control if there is avaliable space for a new file to be placed.
 	if (haveSpace == true) {
-		checkMemorySpace(memories, csvData, blockSize); // checks how many blocks the new add file will take.
+		checkMemorySpaceNadd(memories, csvData, blockSize); // checks how many blocks the new add file will take.
 	}
 	else {
 		cout << "[ALERT] Simulated memory is already populated and CANNOT insert any more files." << endl; // Self-explainatory, file system full and can only perform deletes
@@ -108,7 +108,7 @@ void printVector(const vector<SingleEntry>& myMemory) {
 	cout << endl << "Simulated memory space: " << endl;
 	for (unsigned int i = 0; i < size; i++) {
 		cout << "Index: " << myMemory[i].getPhysical_index();
-		if ((myMemory[i].getBlock_index() > 100) || (myMemory[i].getBlock_index() < 0)) {	// this checks if the block has been assigned the 
+		if ((myMemory[i].getBlock_index() > 127) || (myMemory[i].getBlock_index() < 0)) {	// this checks if the block has been assigned the 
 			cout << "\t Block: Unassigned";													// int("Unassigned") value.
 		}
 		else {
@@ -207,7 +207,7 @@ int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int req
 	return blockNumber;
 }
 
-void checkMemorySpace(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize) {
+void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize) {
 	cout << endl << "- - - - - Checking if there is sufficent memory space - - - - - " << endl;
 	unsigned int size = csv_Vector.size();
 	int numOfBlocksRequiredByFile;
@@ -234,18 +234,67 @@ void checkMemorySpace(vector<SingleEntry>& myMemory, const vector<vector<string>
 			cout << endl;
 			int emptyEntry = findEmptyEntry(myMemory, blockSize, numOfBlocksRequiredByFile-1); // searches and returns the index value of an empty memory block
 			if (emptyEntry > 0) {
+				// - - - For continous allocation 
+				///*
 				string vcbValue = csv_Vector[i][1] + "," + to_string(emptyEntry) + "," + to_string(vectorSizeMin2);
 				myMemory[volControlFileIndex].setData_value(vcbValue);
-				// For continous allocation
-				for (int o = 2; o < csv_Vector[i].size(); o++) {
-					myMemory[emptyEntry].setData_value(csv_Vector[i][o]);
-					emptyEntry += 1;
-				}
+				addEntryContinous(myMemory, csv_Vector, i, emptyEntry);
+				//*/
+
+				// - - - For Index allocation
+				addEntryIndex(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
+
+				// - - - For Linked List allocation
+				//addEntryLList(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
+
 			}
 		}
 	}
 }
 
-void addEntryContinous(const vector<SingleEntry>&myMemory, int index, int* values) { // For continous allocation [Does not utilize blocks]
-
+void addEntryContinous(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum,int emptyEntry) { // For continous allocation [Does not utilize blocks]
+	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
+		myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
+		emptyEntry += 1;
+	}
 }
+
+void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum, int emptyEntry, int vcbIndex) {
+	queue<int> arrayIndexes; // worst case scenerio, 1 file will have 128 index pointer
+	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
+		if (myMemory[emptyEntry].getData_value() != " ") {
+			myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
+			arrayIndexes.push(emptyEntry); // able to enqueue item to the arrayIndexes queue
+		}
+		emptyEntry += 1;
+	}
+
+	string arrIndex2String; // prep the queue to string 
+	while (!arrayIndexes.empty()) {		// Not able to dequeue queue elements to a string array
+		arrIndex2String = arrayIndexes.front();
+		arrayIndexes.pop();
+	}
+	string vcbValue = csv_Vector[comdNum][1] + "," + arrIndex2String; // [File][Start index][end index]
+	myMemory[vcbIndex].setData_value(vcbValue);
+}
+
+// addEntryLList is NOT working
+void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum, int emptyEntry, int vcbIndex) { // For continous allocation [Does not utilize blocks]
+	int vectorSizeMin2 = csv_Vector[comdNum].size() - 2;
+	if (emptyEntry < 127) {
+		for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
+			if (myMemory[emptyEntry].getData_value() != " ") {
+				//myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o] +  "," +  to_string(emptyEntry+1)); [File][Next index]
+				addEntryLList(myMemory, csv_Vector, comdNum, emptyEntry + 1, vcbIndex);
+			}
+			myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
+			// for VCB
+			string vcbValue = csv_Vector[comdNum][1] + "," + to_string(emptyEntry) + "," + to_string(emptyEntry); // [File][Start index][end index]
+			myMemory[vcbIndex].setData_value(vcbValue);
+		}
+	}
+	else {
+		cout << "[ERROR] - File Allocation: Linked List has failed." << endl;
+	}
+}
+
