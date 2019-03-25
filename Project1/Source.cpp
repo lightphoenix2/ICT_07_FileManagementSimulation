@@ -23,11 +23,15 @@ Changelog :
 13/3 3:06pm - method findEmptyEntry, line 187, needs to have the addEntry algor/method placed here to insert said file command into the simulated memory
 21/3 1.52pm - Add continous file allocation working.
 25/3 4.17pm - Add indexing file allocation working.
+	 6.00pm - Completed with READING and DELETING for continous and indexed.
 
 Left with :
-(1) Add Linked List File allocation
-(2) Read
-(3) Delete
+(1) Add (Linked List)
+(2) Read (Linked List)
+(3) Delete (Linked List)
+
+Note(s) :
+(1)method addEntryLList is INCOMPLETE and NOT WORKING.
 */
 
 // Constant
@@ -40,7 +44,9 @@ int findEmptyEntry(const vector<SingleEntry>&, int sizeOfBlock, int requiredBloc
 void printCSVVector(const vector<vector<string>>&); // print CSVVector - print out the read csv commands
 void fillCSV_vector(vector<vector<string>>&); // fillCSV_vector - fills in the information found in the csv file
 bool checkVolumeControl(const vector<SingleEntry>&); // checkVolumeControl - checks if there is enough space for a new file to be added into the system
-void checkMemorySpaceNadd(vector<SingleEntry>&, const vector<vector<string>>&, int blockSize); // checkMemorySpace - checks if there is sufficent space in the memory, if true, insert file from csv command
+void checkMemorySpaceNadd(vector<SingleEntry>&, const vector<vector<string>>&, int, int); // checkMemorySpace - checks if there is sufficent space in the memory, if true, insert file from csv command
+void readMemory(vector<SingleEntry>&, const vector<vector<string>>&, int, int); //readMemory - Reads the file based on the memory's block 0 starting file header
+void deleteMemory(vector<SingleEntry>&, vector<vector<string>>&, int, int); //deleteMemory - wipes the memory of a selected file back to " " including the VCB entry.
 // - - - - - - - Adding of entries into the simulated memory
 void addEntryContinous(vector<SingleEntry>&, const vector<vector<string>>&, int, int);	// For continous allocation [Does not utilize blocks]
 void addEntryLList(vector<SingleEntry>&, const vector<vector<string>>&, int, int, int);		// For linked list allocation [An entry will contain the file an point to another entry]
@@ -61,14 +67,27 @@ int main() {
 	fillVector(memories, blockSize); // fill the simulated memory with mock information such as [index][block index][data value]
 	printVector(memories);			 // print out the information found in memories vector
 
+	cout << endl << "Enter your preferred choice of file allocation:" << "\n[1] Continous\n[2] Indexing\n[3] Linked List" << endl;
+	int choice;
+	cin >> choice;
+
+	// - - - - - - - - - - Adding 
 	bool haveSpace = checkVolumeControl(memories);		// checks against volume control if there is avaliable space for a new file to be placed.
 	if (haveSpace == true) {
-		checkMemorySpaceNadd(memories, csvData, blockSize); // checks how many blocks the new add file will take.
+		checkMemorySpaceNadd(memories, csvData, blockSize, choice); // checks how many blocks the new add file will take.
 	}
 	else {
 		cout << "[ALERT] Simulated memory is already populated and CANNOT insert any more files." << endl; // Self-explainatory, file system full and can only perform deletes
 	}
-	printVector(memories);			 // print out the information found in memories vector
+	printVector(memories); // print out the information found in memories vector
+
+	// - - - - - - - - - - Reading
+	readMemory(memories, csvData, blockSize, choice);
+
+	// - - - - - - - - - - Deleting
+	deleteMemory(memories, csvData, blockSize, choice);
+	printVector(memories); // print out the information found in memories vector
+
 	system("pause");
 	return 0;
 }
@@ -203,7 +222,7 @@ int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int req
 	else {
 		while (!myqueue.empty()) { // print out the entire queue of the empty block index required by the file
 			int tempIndexHolder = myqueue.front();
-			cout << "Index: " << tempIndexHolder;
+			//cout << "Index: " << tempIndexHolder;
 			myqueue.pop();
 		}
 	}
@@ -211,7 +230,8 @@ int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int req
 	return blockNumber;
 }
 
-void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize) {
+
+void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize , int choice) {
 	cout << endl << "- - - - - Checking if there is sufficent memory space - - - - - " << endl;
 	unsigned int size = csv_Vector.size();
 	int numOfBlocksRequiredByFile;
@@ -224,7 +244,6 @@ void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<str
 				string value = myMemory[i].getData_value();
 				if (value == " ") {
 					volControlFileIndex = i;
-					cout << "Vol Control file index : " << volControlFileIndex << endl;
 					break;
 				}
 			}
@@ -238,19 +257,20 @@ void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<str
 			cout << endl;
 			int emptyEntry = findEmptyEntry(myMemory, blockSize, numOfBlocksRequiredByFile-1); // searches and returns the index value of an empty memory block
 			if (emptyEntry > 0) {
-				// - - - For continous allocation 
-				///*
-				string vcbValue = csv_Vector[i][1] + "," + to_string(emptyEntry) + "," + to_string(vectorSizeMin2);
-				myMemory[volControlFileIndex].setData_value(vcbValue);
-				addEntryContinous(myMemory, csv_Vector, i, emptyEntry);
-				//*/
-
-				// - - - For Index allocation
-				addEntryIndex(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
-
-				// - - - For Linked List allocation
-				//addEntryLList(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
-
+				// [1] - - - For continous allocation
+				if (choice == 1) {
+					string vcbValue = csv_Vector[i][1] + "," + to_string(emptyEntry) + "," + to_string(vectorSizeMin2);
+					myMemory[volControlFileIndex].setData_value(vcbValue);
+					addEntryContinous(myMemory, csv_Vector, i, emptyEntry);
+				}
+				// [2] - - - For Index allocation
+				if (choice == 2) {
+					addEntryIndex(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
+				}
+				// [3] - - - For Linked List allocation
+				if (choice == 3) {
+					//addEntryLList(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
+				}
 			}
 		}
 	}
@@ -264,9 +284,10 @@ void addEntryContinous(vector<SingleEntry>&myMemory, const vector<vector<string>
 }
 
 void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum, int emptyEntry, int vcbIndex) {
-	queue<int> arrayIndexes; // worst case scenerio, 1 file will have 128 index pointer
+	queue<int> arrayIndexes; // queue to hold the indexes where file was placed.
+
 	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
-		if (myMemory[emptyEntry].getData_value() != " ") {
+		if (myMemory[emptyEntry].getData_value() == " ") {
 			myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
 			arrayIndexes.push(emptyEntry); // able to enqueue item to the arrayIndexes queue
 		}
@@ -276,7 +297,7 @@ void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 	string arrIndex2String; // prep the queue to string 
 	while (!arrayIndexes.empty()) {		// Not able to dequeue queue elements to a string array
 		arrIndex2String = arrIndex2String + "," + to_string(arrayIndexes.front());
-		cout << arrIndex2String << endl;
+		//cout << arrIndex2String << endl;
 		arrayIndexes.pop();
 	}
 	string vcbValue = csv_Vector[comdNum][1] + arrIndex2String; // [File][Start index][end index]
@@ -303,3 +324,136 @@ void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 	}
 }
 
+void readMemory(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int sizeOfBlock, int choice) {
+	cout << endl << "- - - - - Reading - - - - - " << endl;
+	unsigned int csv_size = csv_Vector.size(); // size of read csv file
+	unsigned int size = myMemory.size(); // gets the size of the vector
+	for (int i = 0; i < csv_size; i++) {
+		if (csv_Vector[i][0] == "read") {
+			if (choice == 1) { // [1] Continous
+				for (unsigned int s = 0; s < size; s++) {
+					if (myMemory[s].getBlock_index() == 0) {
+						if (myMemory[s].getData_value() != " ") {
+							// strip the line of the comma
+							vector<string> result;
+							string str = myMemory[s].getData_value();
+							stringstream data(str);
+							string line;
+							while (getline(data, line, ',')) {
+								result.push_back(line);
+							}
+							// end of delimitter
+							if ((stoi(result[0]) + stoi(result[2])) == stoi(csv_Vector[i][1])) {
+								cout << "Reading file " << csv_Vector[i][1] << " : ";
+								cout << result[0];
+								int indexPtr = stoi(result[1]);
+								int max = (indexPtr + stoi(result[2]));
+								for (indexPtr; indexPtr < max; indexPtr++) {
+									cout << myMemory[indexPtr].getData_value();
+								}
+								cout << endl;
+							}
+						}
+					}
+				}
+			}
+			if (choice == 2) { // [2] index
+				for (unsigned int s = 0; s < size; s++) {
+					if (myMemory[s].getBlock_index() == 0) {
+						if (myMemory[s].getData_value() != " ") {
+							// strip the line of the comma
+							vector<string> result;
+							string str = myMemory[s].getData_value();
+							stringstream data(str);
+							string line;
+							while (getline(data, line, ',')) {
+								result.push_back(line);
+							}
+							// end of delimitter
+							int sizeOfResult = result.size() - 1;
+							if ((stoi(result[0]) + sizeOfResult == stoi(csv_Vector[i][1]))) {
+								cout << "Reading file " << csv_Vector[i][1] << " : ";
+								cout << result[0];
+								for (int i = 1;i < sizeOfResult; i++) {
+									int tempIndex = stoi(result[i]);
+									cout << myMemory[tempIndex].getData_value();
+								}
+								cout << endl;
+							}
+						}
+					}
+				}
+			}
+			if (choice == 3) { // [3] linked list
+
+			}
+		}
+	}
+}
+
+void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vector, int sizeOfBlock, int choice) {
+	cout << endl << "- - - - - DELETING - - - - - DELETING - - - - - DELETING - - - - - " << endl;
+	unsigned int csv_size = csv_Vector.size(); // size of read csv file
+	unsigned int size = myMemory.size(); // gets the size of the vector
+	for (int i = 0; i < csv_size; i++) {
+		if (csv_Vector[i][0] == "delete") {
+			if (choice == 1) { // [1] Continous
+				for (unsigned int s = 0; s < size; s++) {
+					if (myMemory[s].getBlock_index() == 0) {
+						if (myMemory[s].getData_value() != " ") {
+							// strip the line of the comma
+							vector<string> result;
+							string str = myMemory[s].getData_value();
+							stringstream data(str);
+							string line;
+							while (getline(data, line, ',')) {
+								result.push_back(line);
+							}
+							// end of delimitter
+							if (stoi(result[0]) == stoi(csv_Vector[i][1])) { // example is 200 in memory = 200 in csv 
+								cout << "Deleting file " << csv_Vector[i][1];
+								int indexPtr = stoi(result[1]);
+								int max = (indexPtr + stoi(result[2]));
+								for (indexPtr; indexPtr < max; indexPtr++) { // go to individual entries and wipe to " " values
+									myMemory[indexPtr].setData_value(" ");
+								}
+								myMemory[s].setData_value(" "); // lastly wipe the VCB entry to " " value
+								cout << endl;
+							}
+						}
+					}
+				}
+			}
+			if (choice == 2) { // [2] index
+				for (unsigned int s = 0; s < size; s++) {
+					if (myMemory[s].getBlock_index() == 0) {
+						if (myMemory[s].getData_value() != " ") {
+							// strip the line of the comma
+							vector<string> result;
+							string str = myMemory[s].getData_value();
+							stringstream data(str);
+							string line;
+							while (getline(data, line, ',')) {
+								result.push_back(line);
+							}
+							// end of delimitter
+							int sizeOfResult = result.size();
+							if (stoi(result[0]) == stoi(csv_Vector[i][1])) { // example is 200 in memory = 200 in csv 
+								cout << "Deleting file " << csv_Vector[i][1];
+								for (int i = 1; i < sizeOfResult; i++) {
+									int tempIndex = stoi(result[i]);
+									myMemory[tempIndex].setData_value(" ");
+								}
+								myMemory[s].setData_value(" "); // lastly wipe the VCB entry to " " value
+								cout << endl;
+							}
+						}
+					}
+				}
+			}
+			if (choice == 3) { // [3] linked list
+				// add your codes here
+			}
+		}
+	}
+}
