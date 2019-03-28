@@ -22,11 +22,12 @@ Produced by : Abner, Deepak, Jon'wick, Wei Qing, Wei Qi
 For			: ICT1007 File Management project.
 
 Changelog :
-13/3 3:06pm - method findEmptyEntry, line 187, needs to have the addEntry algor/method placed here to insert said file command into the simulated memory
-21/3 1.52pm - Add continous file allocation working.
-25/3 4.17pm - Add indexing file allocation working.
-	 6.00pm - Completed with READING and DELETING for continous and indexed.
-	 7.42pm - COMPLETED (Somewhat)
+13/3 3:06pm  - method findEmptyEntry, line 187, needs to have the addEntry algor/method placed here to insert said file command into the simulated memory
+21/3 1.52pm  - Add continous file allocation working.
+25/3 4.17pm  - Add indexing file allocation working.
+	 6.00pm  - Completed with READING and DELETING for continous and indexed.
+	 7.42pm  - COMPLETED (Somewhat)
+28/3 11.25am - Added a simple timer for the Initalize, Add, Read and Delete functions.
 
 Left with :
 (1) Additional File management algorithm
