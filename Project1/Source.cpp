@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <queue> 
+#include <algorithm>
 
 #include "SingleEntry.h"
 using namespace std;
@@ -24,13 +25,15 @@ Changelog :
 21/3 1.52pm - Add continous file allocation working.
 25/3 4.17pm - Add indexing file allocation working.
 	 6.00pm - Completed with READING and DELETING for continous and indexed.
-	 7.42pm - COMPLETED
+	 7.42pm - COMPLETED (Somewhat)
 
 Left with :
 (1) Additional File management algorithm
+(2) Refreshing the index[0] to reflect the available blocks after deleting still not working for Index and Linked List. see notes.
 
 Note(s) :
-
+	Line 601 - Indexing, logic for the refresh is not working.
+	Line 646 - Linked List, logic for the refresh not implemented.
 */
 
 // Constant
@@ -96,12 +99,26 @@ void fillVector(vector<SingleEntry>& myMemory, int sizeOfBlock){
 	int blockCounter = 0;
 	cout << endl << "- - - - - Preparing to initalize simulated memory space. - - - - - " << endl;
 	int unuseableIndexes = MAX_ENTRIES % sizeOfBlock;
+	int numOfBlocks = MAX_ENTRIES / sizeOfBlock;
 	int usableIndex = MAX_ENTRIES - unuseableIndexes;
 	cout << "Useable index(es): " << usableIndex << endl;
 
 	// Init the index that can be utlized.
 	for (int i = 1; i <= usableIndex; i++) {	// inserts the value such that [0]... [128]
-		if (i%sizeOfBlock) {
+		if (i == 1) {
+			// init the first index 0 to hold the empty blocks numbers
+			string stringNumOfBlocks;
+			for (int z = 1; z < numOfBlocks; z++) {
+				stringNumOfBlocks.append(to_string(z));
+				if (z +1  < numOfBlocks) {
+					stringNumOfBlocks.append(",");
+				}
+			}
+			//cout << stringNumOfBlocks << endl;
+			SingleEntry newEntry(0, 0, stringNumOfBlocks);
+			myMemory.push_back(newEntry);
+		}
+		else if ((i%sizeOfBlock)) {
 			SingleEntry newEntry(i - 1, blockCounter, value);
 			myMemory.push_back(newEntry);
 		}
@@ -276,19 +293,51 @@ void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<str
 }
 
 void addEntryContinous(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum,int emptyEntry) { // For continous allocation [Does not utilize blocks]
+	vector<string> blockNum; // holds the index number for removing the index[o] block which holds all the available blocks
 	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
 		myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
+		blockNum.push_back(to_string(emptyEntry));
 		emptyEntry += 1;
 	}
+	// strip the line of the comma
+	vector<string> result;
+	string str = myMemory[0].getData_value();
+	stringstream data(str);
+	string line;
+	while (getline(data, line, ',')) {
+		result.push_back(line);
+	}
+	// end of delimitter
+	int tempBlockValue;
+	for (int i = 0; i < blockNum.size(); i++) { //removes the similar num
+		//cout << "Value of blocknum[" << i << "]" << " is " <<  blockNum[i] << endl;
+		int tempIndex = stoi(blockNum[i]);
+		tempBlockValue = myMemory[tempIndex].getBlock_index();
+		result.erase(remove(result.begin(), result.end(), to_string(tempBlockValue)), result.end());
+		//cout << "Value of tempBlockValue is " << tempBlockValue << endl;
+	}
+	
+	string stringNumOfBlocks;
+	for (int i = 0; i < result.size(); i++) { //rebuild the vector
+		//cout << result[i];
+		stringNumOfBlocks.append(result[i]);
+		if (i + 1 < result.size()) {
+			stringNumOfBlocks.append(",");
+		}
+	}
+	//cout << stringNumOfBlocks << endl;
+	myMemory[0].setData_value(stringNumOfBlocks);
 }
 
 void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum, int emptyEntry, int vcbIndex) {
 	queue<int> arrayIndexes; // queue to hold the indexes where file was placed.
+	vector<string> blockNum; // holds the index number for removing the index[o] block which holds all the available blocks
 
 	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
 		if (myMemory[emptyEntry].getData_value() == " ") {
 			myMemory[emptyEntry].setData_value(csv_Vector[comdNum][o]);
 			arrayIndexes.push(emptyEntry); // able to enqueue item to the arrayIndexes queue
+			blockNum.push_back(to_string(emptyEntry));
 		}
 		emptyEntry += 1;
 	}
@@ -301,6 +350,35 @@ void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 	}
 	string vcbValue = csv_Vector[comdNum][1] + arrIndex2String; // [File][Start index]....[end index]
 	myMemory[vcbIndex].setData_value(vcbValue);
+
+	// strip the line of the comma
+	vector<string> result;
+	string str = myMemory[0].getData_value();
+	stringstream data(str);
+	string line;
+	while (getline(data, line, ',')) {
+		result.push_back(line);
+	}
+	// end of delimitter
+	int tempBlockValue;
+	for (int i = 0; i < blockNum.size(); i++) { //removes the similar num
+		//cout << "Value of blocknum[" << i << "]" << " is " <<  blockNum[i] << endl;
+		int tempIndex = stoi(blockNum[i]);
+		tempBlockValue = myMemory[tempIndex].getBlock_index();
+		result.erase(remove(result.begin(), result.end(), to_string(tempBlockValue)), result.end());
+		//cout << "Value of tempBlockValue is " << tempBlockValue << endl;
+	}
+
+	string stringNumOfBlocks;
+	for (int i = 0; i < result.size(); i++) { //rebuild the vector
+		//cout << result[i];
+		stringNumOfBlocks.append(result[i]);
+		if (i + 1 < result.size()) {
+			stringNumOfBlocks.append(",");
+		}
+	}
+	cout << stringNumOfBlocks << endl;
+	myMemory[0].setData_value(stringNumOfBlocks);
 }
 
 void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& csv_Vector, int comdNum, int emptyEntry, int vcbIndex) { // For continous allocation [Does not utilize blocks]
@@ -308,6 +386,8 @@ void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 	int startingIndex = emptyEntry;
 	int tempIndex = emptyEntry;
 	int endingIndex = emptyEntry;
+	vector<string> blockNum; // holds the index number for removing the index[o] block which holds all the available blocks
+
 	for (int o = 2; o < csv_Vector[comdNum].size(); o++) {
 		if (myMemory[tempIndex].getData_value() == " ") {
 			endingIndex = tempIndex + 1;
@@ -315,12 +395,43 @@ void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 				string values = csv_Vector[comdNum][o] + ","+ to_string(endingIndex);
 				myMemory[tempIndex].setData_value(values);
 				tempIndex = endingIndex;
+				blockNum.push_back(to_string(emptyEntry));
 			}
 		}
 		emptyEntry += 1;
 	}	
 	string vcbValue = csv_Vector[comdNum][1] + "," + to_string(startingIndex) + "," + to_string(endingIndex); // [File][Next Index][Ending index]
 	myMemory[vcbIndex].setData_value(vcbValue);
+
+
+	// strip the line of the comma
+	vector<string> result;
+	string str = myMemory[0].getData_value();
+	stringstream data(str);
+	string line;
+	while (getline(data, line, ',')) {
+		result.push_back(line);
+	}
+	// end of delimitter
+	int tempBlockValue;
+	for (int i = 0; i < blockNum.size(); i++) { //removes the similar num
+		//cout << "Value of blocknum[" << i << "]" << " is " <<  blockNum[i] << endl;
+		int tempIndex = stoi(blockNum[i]);
+		tempBlockValue = myMemory[tempIndex].getBlock_index();
+		result.erase(remove(result.begin(), result.end(), to_string(tempBlockValue)), result.end());
+		//cout << "Value of tempBlockValue is " << tempBlockValue << endl;
+	}
+
+	string stringNumOfBlocks;
+	for (int i = 0; i < result.size(); i++) { //rebuild the vector
+		//cout << result[i];
+		stringNumOfBlocks.append(result[i]);
+		if (i + 1 < result.size()) {
+			stringNumOfBlocks.append(",");
+		}
+	}
+	cout << stringNumOfBlocks << endl;
+	myMemory[0].setData_value(stringNumOfBlocks);
 }
 
 void readMemory(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int sizeOfBlock, int choice) {
@@ -432,6 +543,7 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 	cout << endl << "- - - - - DELETING - - - - - DELETING - - - - - DELETING - - - - - " << endl;
 	unsigned int csv_size = csv_Vector.size(); // size of read csv file
 	unsigned int size = myMemory.size(); // gets the size of the vector
+
 	for (int i = 0; i < csv_size; i++) {
 		if (csv_Vector[i][0] == "delete") {
 			if (choice == 1) { // [1] Continous
@@ -456,6 +568,10 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 								}
 								myMemory[s].setData_value(" "); // lastly wipe the VCB entry to " " value
 								cout << endl;
+
+								string firstIndex = myMemory[0].getData_value();
+								firstIndex.append("," + to_string(myMemory[indexPtr].getBlock_index()));
+								myMemory[0].setData_value(firstIndex);
 							}
 						}
 					}
@@ -483,6 +599,11 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 								}
 								myMemory[s].setData_value(" "); // lastly wipe the VCB entry to " " value
 								cout << endl;
+								/*
+								string firstIndex = myMemory[0].getData_value();
+								firstIndex.append("," + to_string(myMemory[indexPtr].getBlock_index()));
+								myMemory[0].setData_value(firstIndex);
+								*/
 							}
 						}
 					}
@@ -522,6 +643,9 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 									temp = stoi(entryResult[1]);
 								}
 								cout << endl;
+								/*
+
+								*/
 							}
 						}
 					}
