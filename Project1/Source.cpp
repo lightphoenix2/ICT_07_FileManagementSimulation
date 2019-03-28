@@ -248,7 +248,7 @@ int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int req
 
 
 void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize , int choice) {
-	cout << endl << "- - - - - Checking if there is sufficent memory space - - - - - " << endl;
+	cout << endl << "- - - - - Adding if there is sufficent memory space - - - - - " << endl;
 	unsigned int size = csv_Vector.size();
 	int numOfBlocksRequiredByFile;
 	int volControlFileIndex;
@@ -377,7 +377,7 @@ void addEntryIndex(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 			stringNumOfBlocks.append(",");
 		}
 	}
-	cout << stringNumOfBlocks << endl;
+	//cout << stringNumOfBlocks << endl;
 	myMemory[0].setData_value(stringNumOfBlocks);
 }
 
@@ -430,7 +430,7 @@ void addEntryLList(vector<SingleEntry>&myMemory, const vector<vector<string>>& c
 			stringNumOfBlocks.append(",");
 		}
 	}
-	cout << stringNumOfBlocks << endl;
+	//cout << stringNumOfBlocks << endl;
 	myMemory[0].setData_value(stringNumOfBlocks);
 }
 
@@ -623,7 +623,7 @@ void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vec
 							}
 							// end of delimitter
 							if (stoi(result[0]) == stoi(csv_Vector[i][1])) {
-								cout << "HERE" << endl;
+								//cout << "HERE" << endl;
 								cout << "Deleting file " << csv_Vector[i][1] << " : ";
 								int temp = stoi(result[1]);
 								int tempHolder;
