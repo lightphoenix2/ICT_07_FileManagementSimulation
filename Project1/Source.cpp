@@ -5,6 +5,7 @@
 #include <sstream>
 #include <queue> 
 #include <algorithm>
+#include <ctime>
 
 #include "SingleEntry.h"
 using namespace std;
@@ -58,15 +59,25 @@ void addEntryIndex(vector<SingleEntry>&, const vector<vector<string>>&, int, int
 int main() {
 	vector<SingleEntry> memories;	// create vector to hold the simulated memory
 	vector<vector<string>> csvData; // Create vector to hold the csv lines
+	clock_t start;		// For timer
+	double duration;	// For timer
 
+	start = clock();	// Start timer
 	fillCSV_vector(csvData); // populate CSV vector with the information found in the csv file
+	duration = (clock() - start) / (double)CLOCKS_PER_SEC;
+	cout << "[TIMER] Initalizing of Simulated Memory took: " << duration << "s" << endl;
+
 	printCSVVector(csvData); // print out the information found in the CSV vector
 		
 	cout << endl << "Enter size of number of block size: ";	 // Requesting user for the size of per block
 	int blockSize;											 // blockSize to hold the user input.
 	cin >> blockSize;										 // This will be used to calculate the total number of block(s) in the simulated memory
 
+	start = clock();	// Start timer
 	fillVector(memories, blockSize); // fill the simulated memory with mock information such as [index][block index][data value]
+	duration = (clock() - start) / (double)CLOCKS_PER_SEC;
+	cout << "[TIMER] Filling of Simulated Memory took: " << duration << "s" << endl;
+
 	printVector(memories);			 // print out the information found in memories vector
 
 	cout << endl << "Enter your preferred choice of file allocation:" << "\n[1] Continous\n[2] Indexing\n[3] Linked List" << endl;
@@ -74,6 +85,7 @@ int main() {
 	cin >> choice;
 
 	// - - - - - - - - - - Adding 
+	start = clock();	// Start timer
 	bool haveSpace = checkVolumeControl(memories);		// checks against volume control if there is avaliable space for a new file to be placed.
 	if (haveSpace == true) {
 		checkMemorySpaceNadd(memories, csvData, blockSize, choice); // checks how many blocks the new add file will take.
@@ -81,13 +93,21 @@ int main() {
 	else {
 		cout << "[ALERT] Simulated memory is already populated and CANNOT insert any more files." << endl; // Self-explainatory, file system full and can only perform deletes
 	}
+	duration = (clock() - start) / (double)CLOCKS_PER_SEC;
+	cout << "[TIMER] Adding of Simulated Memory took: " << duration << "s" << endl;
 	printVector(memories); // print out the information found in memories vector
 
 	// - - - - - - - - - - Reading
+	start = clock();	// Start timer
 	readMemory(memories, csvData, blockSize, choice);
+	duration = (clock() - start) / (double)CLOCKS_PER_SEC;
+	cout << "[TIMER] Reading of Simulated Memory took: " << duration << "s" << endl;
 
 	// - - - - - - - - - - Deleting
+	start = clock();	// Start timer
 	deleteMemory(memories, csvData, blockSize, choice);
+	duration = (clock() - start) / (double)CLOCKS_PER_SEC;
+	cout << "[TIMER] Deleting of Simulated Memory took: " << duration << "s" << endl;
 	printVector(memories); // print out the information found in memories vector
 
 	system("pause");
@@ -245,7 +265,6 @@ int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int req
 	cout << endl;
 	return blockNumber;
 }
-
 
 void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize , int choice) {
 	cout << endl << "- - - - - Adding if there is sufficent memory space - - - - - " << endl;
@@ -537,7 +556,6 @@ void readMemory(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv
 		}
 	}
 }
-
 
 void deleteMemory(vector<SingleEntry>& myMemory, vector<vector<string>>& csv_Vector, int sizeOfBlock, int choice) {
 	cout << endl << "- - - - - DELETING - - - - - DELETING - - - - - DELETING - - - - - " << endl;
