@@ -28,6 +28,7 @@ Changelog :
 	 6.00pm  - Completed with READING and DELETING for continous and indexed.
 	 7.42pm  - COMPLETED (Somewhat)
 28/3 11.25am - Added a simple timer for the Initalize, Add, Read and Delete functions.
+29/3 3.20pm  - Realized that there was a logic error when adding the files, has been rectified.
 
 Left with :
 (1) Additional File management algorithm
@@ -42,9 +43,9 @@ Note(s) :
 const int MAX_ENTRIES = 128;
 
 // Prototyping
-void fillVector(vector<SingleEntry>&, int sizeOfBlock); // FillVector - fill in SingleEntry information
+void fillVector(vector<SingleEntry>&, int ); // FillVector - fill in SingleEntry information
 void printVector(const vector<SingleEntry>&); // printVector - prints the information of all memory
-int findEmptyEntry(const vector<SingleEntry>&, int sizeOfBlock, int requiredBlocks); // findEmptyEntry - search for an empty block for insertion/deletion. Returns the index of empty block
+int findEmptyEntry(const vector<SingleEntry>&, int , int, int); // findEmptyEntry - search for an empty block for insertion/deletion. Returns the index of empty block
 void printCSVVector(const vector<vector<string>>&); // print CSVVector - print out the read csv commands
 void fillCSV_vector(vector<vector<string>>&); // fillCSV_vector - fills in the information found in the csv file
 bool checkVolumeControl(const vector<SingleEntry>&); // checkVolumeControl - checks if there is enough space for a new file to be added into the system
@@ -234,21 +235,40 @@ bool checkVolumeControl(const vector<SingleEntry>& myMemory) {
 	return false;
 }
 
-int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int requiredBlocks) { // searches for an empty entry inside the simulated memory. Returns vector index of empty block.
+int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int requiredBlocks, int c) { // searches for an empty entry inside the simulated memory. Returns vector index of empty block.
 	int blockNumber;
 	queue<int> myqueue; // holds the block number that can host the file based on the command
 	unsigned int size = myMemory.size(); // gets the size of the vector
-	for (unsigned int i = 0; i < size; i += sizeOfBlock) {
-		if (myMemory[i].getBlock_index() != 0) {
-			if (myMemory[i].getData_value() == " ") {
-				blockNumber = i;
-				if (requiredBlocks == 0) {
-					myqueue.push(blockNumber);
-					break;
+	if (c == 1) {
+		for (unsigned int i = 0; i < size; i += sizeOfBlock) {
+			if (myMemory[i].getBlock_index() != 0) {
+				if (myMemory[i].getData_value() == " ") {
+					blockNumber = i;
+					if (requiredBlocks == 0) {
+						myqueue.push(blockNumber);
+						break;
+					}
+					else {
+						myqueue.push(blockNumber);
+						requiredBlocks -= 1;
+					}
 				}
-				else {
-					myqueue.push(blockNumber);
-					requiredBlocks -= 1;
+			}
+		}
+	}
+	else {
+		for (unsigned int i = 0; i < size; i++) {
+			if (myMemory[i].getBlock_index() != 0) {
+				if (myMemory[i].getData_value() == " ") {
+					blockNumber = i;
+					if (requiredBlocks == 0) {
+						myqueue.push(blockNumber);
+						break;
+					}
+					else {
+						myqueue.push(blockNumber);
+						requiredBlocks -= 1;
+					}
 				}
 			}
 		}
@@ -267,7 +287,7 @@ int findEmptyEntry(const vector<SingleEntry>& myMemory, int sizeOfBlock, int req
 	return blockNumber;
 }
 
-void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize , int choice) {
+void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<string>>& csv_Vector, int blockSize, int choice) {
 	cout << endl << "- - - - - Adding if there is sufficent memory space - - - - - " << endl;
 	unsigned int size = csv_Vector.size();
 	int numOfBlocksRequiredByFile;
@@ -291,20 +311,28 @@ void checkMemorySpaceNadd(vector<SingleEntry>& myMemory, const vector<vector<str
 				cout << csv_Vector[i][o];
 			}
 			cout << endl;
-			int emptyEntry = findEmptyEntry(myMemory, blockSize, numOfBlocksRequiredByFile-1); // searches and returns the index value of an empty memory block
-			if (emptyEntry > 0) {
-				// [1] - - - For continous allocation
-				if (choice == 1) {
+
+
+			// [1] - - - For continous allocation
+			if (choice == 1) {
+				int emptyEntry = findEmptyEntry(myMemory, blockSize, numOfBlocksRequiredByFile - 1, choice); // searches and returns the index value of an empty memory block
+				if (emptyEntry > 0) {
 					string vcbValue = csv_Vector[i][1] + "," + to_string(emptyEntry) + "," + to_string(vectorSizeMin2);
 					myMemory[volControlFileIndex].setData_value(vcbValue);
 					addEntryContinous(myMemory, csv_Vector, i, emptyEntry);
 				}
-				// [2] - - - For Index allocation
-				if (choice == 2) {
+			}
+			// [2] - - - For Index allocation
+			if (choice == 2) {
+				int emptyEntry = findEmptyEntry(myMemory, blockSize, numOfBlocksRequiredByFile - 1, choice); // searches and returns the index value of an empty memory block
+				if (emptyEntry > 0) {
 					addEntryIndex(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
 				}
-				// [3] - - - For Linked List allocation
-				if (choice == 3) {
+			}
+			// [3] - - - For Linked List allocation
+			if (choice == 3) {
+				int emptyEntry = findEmptyEntry(myMemory, blockSize, numOfBlocksRequiredByFile - 1, choice); // searches and returns the index value of an empty memory block
+				if (emptyEntry > 0) {
 					addEntryLList(myMemory, csv_Vector, i, emptyEntry, volControlFileIndex);
 				}
 			}
