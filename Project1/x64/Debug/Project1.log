@@ -1,0 +1,24 @@
+﻿  Source.cpp
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(68): warning C4101: 'fn': unreferenced local variable
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(171): warning C4311: '<function-style-cast>': pointer truncation from 'const char *' to 'int'
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(171): warning C4302: '<function-style-cast>': truncation from 'const char *' to 'int'
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(183): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(202): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(242): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(256): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(307): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(311): warning C4018: '<=': signed/unsigned mismatch
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(318): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(448): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(501): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(555): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(556): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(558): warning C4018: '<': signed/unsigned mismatch
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(600): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(690): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(691): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(693): warning C4018: '<': signed/unsigned mismatch
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(739): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(775): warning C4101: 'tempHolder': unreferenced local variable
+a:\desktop\ict_07_filemanagementsimulation-master\project1\source.cpp(818): warning C4101: 'tempHolder': unreferenced local variable
+  Project1.vcxproj -> A:\Desktop\ICT_07_FileManagementSimulation-master\x64\Debug\Project1.exe
