@@ -22,4 +22,5 @@ void Functions::rtrim(std::string &s) {
 void Functions::trim(std::string &s) {
 	ltrim(s);
 	rtrim(s);
+
 }
