@@ -29,14 +29,14 @@ Changelog :
 	 7.42pm  - COMPLETED (Somewhat)
 28/3 11.25am - Added a simple timer for the Initalize, Add, Read and Delete functions.
 29/3 3.20pm  - Realized that there was a logic error when adding the files, has been rectified.
+29/3 11.34pm - Included the additional file management portion.
 
 Left with :
-(1) Additional File management algorithm
-(2) Refreshing the index[0] to reflect the available blocks after deleting still not working for Index and Linked List. see notes.
+(1) Refreshing the index[0] to reflect the available blocks after deleting still not working for Index and Linked List. see notes.
 
 Note(s) :
-	Line 601 - Indexing, logic for the refresh is not working.
-	Line 646 - Linked List, logic for the refresh not implemented.
+	- Indexing, logic for the refresh is not working.
+	- Linked List, logic for the refresh not implemented.
 */
 
 // Constant
