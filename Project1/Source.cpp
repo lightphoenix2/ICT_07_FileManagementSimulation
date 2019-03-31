@@ -93,7 +93,6 @@ int main() {
 	int choice;
 	cin >> choice;
 
-	printVector(memories); // print out the information found in memories vector
 	for (int i = 0; i < csvData.size(); i++) {
 		// - - - - - - - - - - Adding 
 		if (csvData[i][0] == "add") {	
@@ -107,6 +106,7 @@ int main() {
 			}
 			duration = (clock() - start) / (double)CLOCKS_PER_SEC;
 			cout << "[TIMER] Adding of Simulated Memory took: " << duration << "s" << endl;
+			printVector(memories); // print out the information found in memories vector
 		}
 		// - - - - - - - - - - Reading
 		else if (csvData[i][0] == "read") {
@@ -121,12 +121,9 @@ int main() {
 			deleteMemory(memories, csvData, blockSize, choice);
 			duration = (clock() - start) / (double)CLOCKS_PER_SEC;
 			cout << "[TIMER] Deleting of Simulated Memory took: " << duration << "s" << endl;
+			printVector(memories);// print out the information found in memories vector
 		}
-
 	}
-	
-	printVector(memories); // print out the information found in memories vector
-
 	system("pause");
 	return 0;
 }
